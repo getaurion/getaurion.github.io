@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AURION — Know Your Body Like Never Before</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Inter:wght@200;300;400;500&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#04040A;--surface:#0A0A14;--surface2:#10101E;
+    --accent:#7B6EFF;--accent2:#FF6B6B;--accent3:#00E5FF;
+    --accent-glow:rgba(123,110,255,0.15);--accent-dim:rgba(123,110,255,0.07);
+    --white:#F0EFF8;--muted:#4A4A68;--border:#14142A;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--bg);color:var(--white);font-family:'Inter',sans-serif;overflow-x:hidden;}
+
+  .cur{width:10px;height:10px;background:var(--accent);border-radius:50%;position:fixed;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);box-shadow:0 0 12px var(--accent);}
+  .cur-ring{width:36px;height:36px;border:1px solid rgba(123,110,255,.4);border-radius:50%;position:fixed;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:all .15s ease;}
+
+  nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;justify-content:space-between;align-items:center;padding:26px 56px;background:rgba(4,4,10,.85);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);}
+  .nav-logo{display:flex;align-items:center;gap:12px;}
+  .nav-wordmark{font-family:'Rajdhani',sans-serif;font-size:26px;font-weight:700;letter-spacing:.25em;color:var(--white);}
+  .nav-wordmark span{color:var(--accent);}
+  .nav-right{display:flex;align-items:center;gap:20px;}
+  .nav-status{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;}
+  .status-dot{width:6px;height:6px;background:var(--accent3);border-radius:50%;animation:blink 1.5s ease-in-out infinite;box-shadow:0 0 8px var(--accent3);}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+  .nav-btn{background:transparent;color:var(--accent);border:1px solid rgba(123,110,255,.4);padding:10px 24px;border-radius:100px;font-family:'Inter',sans-serif;font-weight:500;font-size:12px;letter-spacing:.08em;cursor:pointer;transition:all .25s;}
+  .nav-btn:hover{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:0 0 24px rgba(123,110,255,.4);}
+
+  .hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:140px 24px 80px;position:relative;overflow:hidden;}
+  .particles{position:absolute;inset:0;pointer-events:none;}
+  .particle{position:absolute;border-radius:50%;animation:pFloat linear infinite;}
+  @keyframes pFloat{0%{transform:translateY(100vh) scale(0);opacity:0;}10%{opacity:1;}90%{opacity:1;}100%{transform:translateY(-100px) scale(1);opacity:0;}}
+  .hero-orb{position:absolute;top:40%;left:50%;transform:translate(-50%,-50%);width:600px;height:600px;background:radial-gradient(circle,rgba(123,110,255,.08) 0%,rgba(0,229,255,.03) 40%,transparent 70%);pointer-events:none;animation:orbPulse 6s ease-in-out infinite;}
+  @keyframes orbPulse{0%,100%{transform:translate(-50%,-50%) scale(1);}50%{transform:translate(-50%,-50%) scale(1.1);}}
+  .hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(123,110,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(123,110,255,.03) 1px,transparent 1px);background-size:80px 80px;pointer-events:none;mask-image:radial-gradient(ellipse at center,rgba(0,0,0,.5) 0%,transparent 75%);}
+
+  .hero-eyebrow{font-size:11px;letter-spacing:.4em;color:var(--accent3);text-transform:uppercase;margin-bottom:40px;position:relative;z-index:1;font-weight:300;display:flex;align-items:center;gap:16px;}
+  .hero-eyebrow::before,.hero-eyebrow::after{content:'';flex:1;max-width:60px;height:1px;background:linear-gradient(90deg,transparent,rgba(0,229,255,.4));}
+  .hero-eyebrow::after{background:linear-gradient(90deg,rgba(0,229,255,.4),transparent);}
+  .hero-logo-wrap{position:relative;z-index:1;margin-bottom:32px;}
+  .hero-logo-icon{margin-bottom:24px;}
+  .hero-title{font-family:'Rajdhani',sans-serif;font-size:clamp(64px,14vw,180px);font-weight:700;letter-spacing:.18em;line-height:1;background:linear-gradient(135deg,#ffffff 0%,rgba(240,239,248,.9) 30%,var(--accent) 60%,var(--accent3) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 40px rgba(123,110,255,.3));}
+  .hero-subtitle{font-family:'Playfair Display',serif;font-size:clamp(14px,2vw,20px);font-weight:400;font-style:italic;color:var(--muted);letter-spacing:.08em;margin-bottom:64px;position:relative;z-index:1;line-height:1.6;}
+  .hero-subtitle em{color:rgba(240,239,248,.6);font-style:normal;}
+
+  .form-wrap{position:relative;z-index:1;width:100%;max-width:480px;margin-bottom:20px;}
+  .form-inner{display:flex;align-items:center;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:6px 6px 6px 24px;gap:8px;transition:border-color .3s,box-shadow .3s;}
+  .form-inner:focus-within{border-color:rgba(123,110,255,.5);box-shadow:0 0 0 4px rgba(123,110,255,.06),0 0 40px rgba(123,110,255,.1);}
+  .form-inner input{flex:1;background:transparent;border:none;outline:none;color:var(--white);font-family:'Inter',sans-serif;font-size:14px;font-weight:300;min-width:0;}
+  .form-inner input::placeholder{color:var(--muted);}
+  .form-btn{background:linear-gradient(135deg,var(--accent),var(--accent3));color:#fff;border:none;padding:12px 24px;border-radius:12px;font-family:'Inter',sans-serif;font-weight:600;font-size:13px;letter-spacing:.05em;cursor:pointer;white-space:nowrap;transition:all .25s;flex-shrink:0;box-shadow:0 4px 20px rgba(123,110,255,.3);}
+  .form-btn:hover{transform:scale(1.04);box-shadow:0 6px 30px rgba(123,110,255,.5);}
+  .form-note{font-size:11px;color:var(--muted);text-align:center;position:relative;z-index:1;letter-spacing:.04em;}
+  .success-box{display:none;position:relative;z-index:1;background:var(--accent-dim);border:1px solid rgba(123,110,255,.25);border-radius:16px;padding:28px 40px;text-align:center;width:100%;max-width:480px;}
+  .success-box .icon{font-size:32px;margin-bottom:10px;}
+  .success-box p{color:var(--accent);font-size:15px;font-weight:500;}
+  .success-box span{color:var(--muted);font-size:12px;}
+
+  .hero-count{position:relative;z-index:1;margin-top:52px;display:flex;flex-direction:column;align-items:center;gap:12px;}
+  .avatars{display:flex;}
+  .av{width:32px;height:32px;border-radius:50%;border:2px solid var(--bg);margin-left:-9px;font-size:14px;display:flex;align-items:center;justify-content:center;background:var(--surface2);}
+  .av:first-child{margin-left:0;}
+  .count-txt{font-size:13px;color:var(--muted);letter-spacing:.04em;}
+  .count-txt strong{color:var(--white);}
+
+  .section{padding:120px 56px;border-top:1px solid var(--border);}
+  .sec-label{font-size:11px;letter-spacing:.3em;color:var(--muted);text-transform:uppercase;margin-bottom:14px;}
+  .sec-title{font-family:'Rajdhani',sans-serif;font-size:clamp(36px,5vw,72px);font-weight:700;letter-spacing:.1em;line-height:1;margin-bottom:72px;}
+  .sec-title em{color:var(--accent);font-style:normal;}
+
+  .logo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+  .logo-card{border-radius:20px;padding:56px 40px;display:flex;flex-direction:column;align-items:center;gap:20px;border:1px solid var(--border);transition:border-color .3s,transform .3s;cursor:default;}
+  .logo-card:hover{border-color:rgba(123,110,255,.25);transform:translateY(-3px);}
+  .logo-card-dark{background:var(--bg);}
+  .logo-card-light{background:#F0EFF8;}
+  .logo-card-accent{background:linear-gradient(135deg,var(--accent),var(--accent3));}
+
+  .icon-row{display:flex;gap:32px;align-items:flex-end;flex-wrap:wrap;margin-top:72px;}
+  .icon-wrap{display:flex;flex-direction:column;align-items:center;gap:12px;}
+  .icon-lbl{font-size:11px;color:var(--muted);letter-spacing:.08em;text-align:center;}
+  .app-icon{border-radius:22.5%;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .sz-xl{width:200px;height:200px;}.sz-lg{width:140px;height:140px;}.sz-md{width:96px;height:96px;}.sz-sm{width:64px;height:64px;}.sz-xs{width:48px;height:48px;}
+  .ic-dark{background:var(--bg);border:1px solid var(--border);}.ic-grad{background:linear-gradient(135deg,var(--accent),var(--accent3));}.ic-white{background:#F0EFF8;}.ic-surface{background:var(--surface);}
+
+  .swatch-row{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-top:72px;}
+  .swatch{border-radius:16px;overflow:hidden;border:1px solid var(--border);}
+  .swatch-col{height:130px;}
+  .swatch-info{background:var(--surface);padding:18px;}
+  .sw-name{font-size:13px;font-weight:500;margin-bottom:4px;}
+  .sw-hex{font-size:11px;color:var(--muted);letter-spacing:.1em;font-family:monospace;}
+  .sw-role{font-size:10px;color:var(--muted);margin-top:6px;letter-spacing:.08em;text-transform:uppercase;}
+
+  .type-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:72px;}
+  .type-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:48px;}
+  .type-lbl{font-size:10px;letter-spacing:.25em;color:var(--muted);text-transform:uppercase;margin-bottom:32px;}
+  .type-display{font-family:'Rajdhani',sans-serif;font-size:64px;font-weight:700;letter-spacing:.15em;line-height:1;margin-bottom:16px;background:linear-gradient(135deg,var(--accent),var(--accent3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+  .type-body{font-size:15px;color:var(--muted);line-height:1.8;font-weight:300;margin-bottom:16px;}
+  .type-meta{font-size:11px;color:var(--border);letter-spacing:.1em;}
+
+  .tg-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:72px;}
+  .tg-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:40px;transition:all .3s;cursor:default;}
+  .tg-card:hover{border-color:rgba(123,110,255,.25);transform:translateY(-2px);}
+  .tg-card.primary{grid-column:1/-1;background:var(--accent-dim);border-color:rgba(123,110,255,.2);}
+  .tg-text{font-family:'Rajdhani',sans-serif;font-size:clamp(22px,2.5vw,34px);font-weight:700;letter-spacing:.08em;line-height:1.2;margin-bottom:14px;}
+  .tg-card.primary .tg-text{color:var(--accent);}
+  .tg-why{font-size:13px;color:var(--muted);line-height:1.7;font-weight:300;}
+
+  .feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border-radius:24px;overflow:hidden;border:1px solid var(--border);margin-top:72px;}
+  .feat{background:var(--bg);padding:48px 36px;position:relative;overflow:hidden;transition:background .3s;}
+  .feat:hover{background:var(--surface);}
+  .feat::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 0% 0%,rgba(123,110,255,.08),transparent 60%);opacity:0;transition:opacity .4s;}
+  .feat:hover::after{opacity:1;}
+  .feat-n{font-size:11px;color:var(--muted);letter-spacing:.2em;margin-bottom:32px;position:relative;z-index:1;}
+  .feat-ic{width:50px;height:50px;background:var(--surface2);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:24px;position:relative;z-index:1;transition:background .3s;}
+  .feat:hover .feat-ic{background:var(--accent-dim);}
+  .feat-title{font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;letter-spacing:.08em;margin-bottom:12px;position:relative;z-index:1;}
+  .feat-body{font-size:13px;color:var(--muted);line-height:1.8;font-weight:300;position:relative;z-index:1;}
+  .feat-tag{display:inline-block;margin-top:24px;font-size:10px;letter-spacing:.15em;color:var(--accent);text-transform:uppercase;position:relative;z-index:1;}
+
+  .bottom-cta{padding:160px 56px;border-top:1px solid var(--border);text-align:center;position:relative;overflow:hidden;}
+  .bottom-cta::before{content:'';position:absolute;bottom:-200px;left:50%;transform:translateX(-50%);width:1000px;height:600px;background:radial-gradient(ellipse,rgba(123,110,255,.06) 0%,transparent 70%);pointer-events:none;}
+  .cta-title{font-family:'Rajdhani',sans-serif;font-size:clamp(80px,16vw,200px);font-weight:700;letter-spacing:.18em;line-height:.9;position:relative;z-index:1;background:linear-gradient(135deg,#fff 0%,rgba(255,255,255,.7) 40%,var(--accent) 70%,var(--accent3) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 60px rgba(123,110,255,.2));margin-bottom:24px;}
+  .cta-sub{font-family:'Playfair Display',serif;font-size:clamp(16px,2vw,24px);font-weight:400;font-style:italic;color:var(--muted);margin-bottom:56px;position:relative;z-index:1;letter-spacing:.08em;}
+  .cta-sub em{color:rgba(240,239,248,.6);font-style:normal;}
+  .bottom-form{position:relative;z-index:1;max-width:480px;margin:0 auto;}
+
+  footer{border-top:1px solid var(--border);padding:40px 56px;display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--muted);letter-spacing:.08em;}
+
+  .reveal{opacity:0;transform:translateY(20px);transition:opacity .8s ease,transform .8s ease;}
+  .reveal.on{opacity:1;transform:translateY(0);}
+
+  @media(max-width:900px){
+    nav{padding:18px 20px;}
+    .hero{padding:120px 20px 80px;}
+    .section{padding:80px 20px;}
+    .logo-grid,.type-grid,.tg-grid{grid-template-columns:1fr;}
+    .swatch-row{grid-template-columns:repeat(3,1fr);}
+    .feat-grid{grid-template-columns:1fr;}
+    .bottom-cta{padding:100px 20px;}
+    footer{padding:28px 20px;flex-direction:column;gap:10px;text-align:center;}
+  }
+</style>
+</head>
+<body>
+<div class="cur" id="cur"></div>
+<div class="cur-ring" id="curRing"></div>
+<div class="particles" id="particles"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
+      <defs><linearGradient id="ng" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#7B6EFF"/><stop offset="100%" stop-color="#00E5FF"/></linearGradient></defs>
+      <circle cx="15" cy="15" r="14" stroke="url(#ng)" stroke-width=".75" opacity=".2"/>
+      <circle cx="15" cy="15" r="10" stroke="url(#ng)" stroke-width=".75" opacity=".4"/>
+      <circle cx="15" cy="15" r="6" stroke="url(#ng)" stroke-width=".75" opacity=".65"/>
+      <circle cx="15" cy="15" r="2.5" fill="url(#ng)"/>
+    </svg>
+    <div class="nav-wordmark"><span>AU</span>RION</div>
+  </div>
+  <div class="nav-right">
+    <div class="nav-status"><span class="status-dot"></span>Building Now</div>
+    <button class="nav-btn" onclick="document.getElementById('heroEmail').focus()">JOIN WAITLIST</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-orb"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-eyebrow">The AI Fitness Super-App · 2026</div>
+  <div class="hero-logo-wrap">
+    <div class="hero-logo-icon">
+      <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+        <defs><linearGradient id="hg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#7B6EFF"/><stop offset="100%" stop-color="#00E5FF"/></linearGradient></defs>
+        <circle cx="40" cy="40" r="38" stroke="url(#hg)" stroke-width=".75" opacity=".15"/>
+        <circle cx="40" cy="40" r="28" stroke="url(#hg)" stroke-width=".75" opacity=".3"/>
+        <circle cx="40" cy="40" r="18" stroke="url(#hg)" stroke-width=".75" opacity=".5"/>
+        <circle cx="40" cy="40" r="10" stroke="url(#hg)" stroke-width=".75" opacity=".75"/>
+        <circle cx="40" cy="40" r="4" fill="url(#hg)"/>
+      </svg>
+    </div>
+    <div class="hero-title">AURION</div>
+  </div>
+  <p class="hero-subtitle">scan. lift. run. <em>understand everything.</em></p>
+
+  <div class="form-wrap" id="heroWrap">
+    <div class="form-inner" id="heroForm">
+      <input type="email" id="heroEmail" placeholder="your email address" autocomplete="email"/>
+      <button class="form-btn" onclick="go('heroEmail','heroForm','heroWrap','heroOk')">GET EARLY ACCESS</button>
+    </div>
+  </div>
+  <div class="success-box" id="heroOk">
+    <div class="icon">⚡</div>
+    <p>You're in.</p>
+    <span>We'll reach you before anyone else gets access.</span>
+  </div>
+  <p class="form-note" style="margin-top:16px">No spam · Free Pro at launch · Unsubscribe anytime</p>
+
+  <div class="hero-count">
+    <div class="avatars">
+      <div class="av">💪</div><div class="av">🏃</div><div class="av">🥗</div><div class="av">⚡</div><div class="av">🎯</div>
+    </div>
+    <div class="count-txt"><strong id="cnt">0</strong> people already waiting</div>
+  </div>
+</section>
+
+<!-- LOGO -->
+<section class="section reveal">
+  <div class="sec-label">Brand Identity · Logo</div>
+  <div class="sec-title">THE MARK OF <em>AURION.</em></div>
+  <div class="logo-grid">
+    <div class="logo-card logo-card-dark">
+      <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
+        <defs><linearGradient id="lg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#7B6EFF"/><stop offset="100%" stop-color="#00E5FF"/></linearGradient></defs>
+        <circle cx="26" cy="26" r="25" stroke="url(#lg1)" stroke-width=".75" opacity=".2"/>
+        <circle cx="26" cy="26" r="18" stroke="url(#lg1)" stroke-width=".75" opacity=".4"/>
+        <circle cx="26" cy="26" r="11" stroke="url(#lg1)" stroke-width=".75" opacity=".65"/>
+        <circle cx="26" cy="26" r="4" fill="url(#lg1)"/>
+      </svg>
+      <div style="font-family:'Rajdhani',sans-serif;font-size:36px;font-weight:700;letter-spacing:.2em;background:linear-gradient(135deg,#fff,rgba(255,255,255,.7));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">AURION</div>
+      <div style="font-size:11px;letter-spacing:.15em;color:#888;text-transform:uppercase;">Primary · Dark</div>
+    </div>
+    <div class="logo-card logo-card-light">
+      <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
+        <circle cx="26" cy="26" r="25" stroke="#04040A" stroke-width=".75" opacity=".12"/>
+        <circle cx="26" cy="26" r="18" stroke="#04040A" stroke-width=".75" opacity=".28"/>
+        <circle cx="26" cy="26" r="11" stroke="#04040A" stroke-width=".75" opacity=".5"/>
+        <circle cx="26" cy="26" r="4" fill="#04040A"/>
+      </svg>
+      <div style="font-family:'Rajdhani',sans-serif;font-size:36px;font-weight:700;letter-spacing:.2em;color:#04040A;">AURION</div>
+      <div style="font-size:11px;letter-spacing:.15em;color:#333;text-transform:uppercase;">Secondary · Light</div>
+    </div>
+    <div class="logo-card logo-card-accent">
+      <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
+        <circle cx="26" cy="26" r="25" stroke="#fff" stroke-width=".75" opacity=".2"/>
+        <circle cx="26" cy="26" r="18" stroke="#fff" stroke-width=".75" opacity=".4"/>
+        <circle cx="26" cy="26" r="11" stroke="#fff" stroke-width=".75" opacity=".65"/>
+        <circle cx="26" cy="26" r="4" fill="#fff"/>
+      </svg>
+      <div style="font-family:'Rajdhani',sans-serif;font-size:36px;font-weight:700;letter-spacing:.2em;color:#fff;">AURION</div>
+      <div style="font-size:11px;letter-spacing:.15em;color:rgba(255,255,255,.6);text-transform:uppercase;">Accent · Campaigns</div>
+    </div>
+  </div>
+</section>
+
+<!-- APP ICON -->
+<section class="section reveal">
+  <div class="sec-label">Brand Identity · App Icon</div>
+  <div class="sec-title">BUILT TO OWN <em>THE HOME SCREEN.</em></div>
+  <div class="icon-row">
+    <div class="icon-wrap">
+      <div class="app-icon sz-xl ic-dark">
+        <svg width="130" height="130" viewBox="0 0 130 130" fill="none">
+          <defs><linearGradient id="ii1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#7B6EFF"/><stop offset="100%" stop-color="#00E5FF"/></linearGradient></defs>
+          <circle cx="65" cy="65" r="62" stroke="url(#ii1)" stroke-width="1" opacity=".15"/>
+          <circle cx="65" cy="65" r="48" stroke="url(#ii1)" stroke-width="1" opacity=".28"/>
+          <circle cx="65" cy="65" r="34" stroke="url(#ii1)" stroke-width="1" opacity=".45"/>
+          <circle cx="65" cy="65" r="20" stroke="url(#ii1)" stroke-width="1" opacity=".65"/>
+          <circle cx="65" cy="65" r="7" stroke="url(#ii1)" stroke-width="1" opacity=".85"/>
+          <circle cx="65" cy="65" r="3" fill="url(#ii1)"/>
+          <text x="65" y="104" text-anchor="middle" font-family="Rajdhani" font-weight="700" font-size="13" fill="url(#ii1)" letter-spacing="2" opacity=".9">AURION</text>
+        </svg>
+      </div>
+      <div class="icon-lbl">200px · App Store</div>
+    </div>
+    <div class="icon-wrap">
+      <div class="app-icon sz-lg ic-grad">
+        <svg width="90" height="90" viewBox="0 0 90 90" fill="none">
+          <circle cx="45" cy="45" r="42" stroke="#fff" stroke-width="1" opacity=".15"/>
+          <circle cx="45" cy="45" r="30" stroke="#fff" stroke-width="1" opacity=".3"/>
+          <circle cx="45" cy="45" r="18" stroke="#fff" stroke-width="1" opacity=".55"/>
+          <circle cx="45" cy="45" r="4" fill="#fff"/>
+        </svg>
+      </div>
+      <div class="icon-lbl">140px · Gradient</div>
+    </div>
+    <div class="icon-wrap">
+      <div class="app-icon sz-md ic-dark">
+        <svg width="62" height="62" viewBox="0 0 62 62" fill="none">
+          <defs><linearGradient id="ii2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#7B6EFF"/><stop offset="100%" stop-color="#00E5FF"/></linearGradient></defs>
+          <circle cx="31" cy="31" r="29" stroke="url(#ii2)" stroke-width="1" opacity=".2"/>
+          <circle cx="31" cy="31" r="20" stroke="url(#ii2)" stroke-width="1" opacity=".45"/>
+          <circle cx="31" cy="31" r="11" stroke="url(#ii2)" stroke-width="1" opacity=".75"/>
+          <circle cx="31" cy="31" r="3" fill="url(#ii2)"/>
+        </svg>
+      </div>
+      <div class="icon-lbl">96px · Notification</div>
+    </div>
+    <div class="icon-wrap">
+      <div class="app-icon sz-sm ic-surface">
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+          <defs><linearGradient id="ii3" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#7B6EFF"/><stop offset="100%" stop-color="#00E5FF"/></linearGradient></defs>
+          <circle cx="20" cy="20" r="18" stroke="url(#ii3)" stroke-width="1" opacity=".3"/>
+          <circle cx="20" cy="20" r="11" stroke="url(#ii3)" stroke-width="1" opacity=".6"/>
+          <circle cx="20" cy="20" r="3" fill="url(#ii3)"/>
+        </svg>
+      </div>
+      <div class="icon-lbl">64px · Watch</div>
+    </div>
+    <div class="icon-wrap">
+      <div class="app-icon sz-xs ic-dark">
+        <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
+          <defs><linearGradient id="ii4" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#7B6EFF"/><stop offset="100%" stop-color="#00E5FF"/></linearGradient></defs>
+          <circle cx="15" cy="15" r="13" stroke="url(#ii4)" stroke-width="1" opacity=".4"/>
+          <circle cx="15" cy="15" r="7" stroke="url(#ii4)" stroke-width="1" opacity=".7"/>
+          <circle cx="15" cy="15" r="2" fill="url(#ii4)"/>
+        </svg>
+      </div>
+      <div class="icon-lbl">48px · Favicon</div>
+    </div>
+    <div class="icon-wrap">
+      <div class="app-icon sz-md ic-white">
+        <svg width="62" height="62" viewBox="0 0 62 62" fill="none">
+          <circle cx="31" cy="31" r="29" stroke="#04040A" stroke-width="1" opacity=".1"/>
+          <circle cx="31" cy="31" r="20" stroke="#04040A" stroke-width="1" opacity=".25"/>
+          <circle cx="31" cy="31" r="11" stroke="#04040A" stroke-width="1" opacity=".5"/>
+          <circle cx="31" cy="31" r="3" fill="#04040A"/>
+        </svg>
+      </div>
+      <div class="icon-lbl">96px · Light mode</div>
+    </div>
+  </div>
+</section>
+
+<!-- COLOURS -->
+<section class="section reveal">
+  <div class="sec-label">Brand Identity · Colours</div>
+  <div class="sec-title">THE <em>AURION</em> PALETTE.</div>
+  <div class="swatch-row">
+    <div class="swatch"><div class="swatch-col" style="background:#04040A"></div><div class="swatch-info"><div class="sw-name">Void</div><div class="sw-hex">#04040A</div><div class="sw-role">Primary BG</div></div></div>
+    <div class="swatch"><div class="swatch-col" style="background:linear-gradient(135deg,#7B6EFF,#00E5FF)"></div><div class="swatch-info"><div class="sw-name">Ion</div><div class="sw-hex">#7B6EFF → #00E5FF</div><div class="sw-role">Brand Gradient</div></div></div>
+    <div class="swatch"><div class="swatch-col" style="background:#7B6EFF"></div><div class="swatch-info"><div class="sw-name">Pulse</div><div class="sw-hex">#7B6EFF</div><div class="sw-role">Primary Accent</div></div></div>
+    <div class="swatch"><div class="swatch-col" style="background:#00E5FF"></div><div class="swatch-info"><div class="sw-name">Signal</div><div class="sw-hex">#00E5FF</div><div class="sw-role">Secondary Accent</div></div></div>
+    <div class="swatch"><div class="swatch-col" style="background:#FF6B6B"></div><div class="swatch-info"><div class="sw-name">Burn</div><div class="sw-hex">#FF6B6B</div><div class="sw-role">PR / Alert</div></div></div>
+  </div>
+</section>
+
+<!-- TYPOGRAPHY -->
+<section class="section reveal">
+  <div class="sec-label">Brand Identity · Typography</div>
+  <div class="sec-title">TWO FONTS. <em>ONE VOICE.</em></div>
+  <div class="type-grid">
+    <div class="type-card">
+      <div class="type-lbl">Display · Rajdhani</div>
+      <div class="type-display">AURION</div>
+      <div style="font-family:'Rajdhani',sans-serif;font-size:36px;font-weight:300;letter-spacing:.12em;color:var(--muted);margin-bottom:16px;">PERFORM.</div>
+      <div class="type-meta">Headlines · Logo · Hero · Feature titles</div>
+    </div>
+    <div class="type-card">
+      <div class="type-lbl">Body · Inter</div>
+      <div style="font-size:26px;font-weight:200;margin-bottom:20px;line-height:1.2;">Your body.<br>Your data. Your edge.</div>
+      <div class="type-body">Aurion connects every rep you lift, every meal you eat, every kilometre you run — and tells you exactly why your body performs the way it does.</div>
+      <div class="type-meta">Body text · UI labels · Captions · Data</div>
+    </div>
+  </div>
+</section>
+
+<!-- TAGLINES -->
+<section class="section reveal">
+  <div class="sec-label">Brand Voice · Taglines</div>
+  <div class="sec-title">WORDS THAT <em>LAND.</em></div>
+  <div class="tg-grid">
+    <div class="tg-card primary">
+      <div class="tg-text">KNOW YOUR BODY LIKE NEVER BEFORE.</div>
+      <div class="tg-why">Primary tagline. Universal, premium, zero jargon. Works for every user. Goes on everything — app store, ads, merch, pitch decks.</div>
+    </div>
+    <div class="tg-card">
+      <div class="tg-text">EVERY REP HAS A REASON. AURION FINDS IT.</div>
+      <div class="tg-why">Gym-focused campaigns. Positions the AI debrief as the hero. Best for Instagram reels and YouTube ads.</div>
+    </div>
+    <div class="tg-card">
+      <div class="tg-text">YOUR PERFORMANCE HAS A SIGNAL. WE READ IT.</div>
+      <div class="tg-why">Technical and data-driven. Makes Aurion feel like precision science, not just a fitness app.</div>
+    </div>
+    <div class="tg-card">
+      <div class="tg-text">SCAN. LIFT. RUN. UNDERSTAND.</div>
+      <div class="tg-why">Four-word product summary. Perfect for App Store subtitle and onboarding screens.</div>
+    </div>
+    <div class="tg-card">
+      <div class="tg-text">YOUR BODY IS TALKING. AURION TRANSLATES.</div>
+      <div class="tg-why">Most emotional. Best for video brand films and launch campaigns that need to go viral.</div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="section reveal">
+  <div class="sec-label">Core Product</div>
+  <div class="sec-title">SIX REASONS <em>THEY STAY.</em></div>
+  <div class="feat-grid">
+    <div class="feat"><div class="feat-n">01 / 06</div><div class="feat-ic">📷</div><div class="feat-title">SNAP TO TRACK</div><p class="feat-body">Point your camera at any food. Instant macros and micros. No typing, no guessing. AI vision trained on millions of real meals.</p><span class="feat-tag">✦ AI Vision</span></div>
+    <div class="feat"><div class="feat-n">02 / 06</div><div class="feat-ic">🔲</div><div class="feat-title">BARCODE INTELLIGENCE</div><p class="feat-body">Scan any packaged food. Every vitamin, mineral, and macro instantly. Full nutritional truth in under one second. 3M+ products.</p><span class="feat-tag">✦ 3M+ Products</span></div>
+    <div class="feat"><div class="feat-n">03 / 06</div><div class="feat-ic">🏋️</div><div class="feat-title">LIFT TRACKER</div><p class="feat-body">Log sets, reps, weight in one tap. Progressive overload curves. 1RM estimates. Your entire strength history visualised beautifully.</p><span class="feat-tag">✦ Auto Progression</span></div>
+    <div class="feat"><div class="feat-n">04 / 06</div><div class="feat-ic">🤖</div><div class="feat-title">AI WORKOUT PLANS</div><p class="feat-body">Five questions. One personalised 12-week programme. Built for your body and goals. Auto-adjusts every week based on your progress.</p><span class="feat-tag">✦ Beginner Ready</span></div>
+    <div class="feat"><div class="feat-n">05 / 06</div><div class="feat-ic">🗺️</div><div class="feat-title">ACTIVITY INTELLIGENCE</div><p class="feat-body">Steps, runs, treks tracked with GPS precision. Elevation, pace zones, splits, and real-time stats. The most detailed activity tracking you've ever experienced.</p><span class="feat-tag">✦ GPS Powered</span></div>
+    <div class="feat"><div class="feat-n">06 / 06</div><div class="feat-ic">🧠</div><div class="feat-title">WEEKLY AI DEBRIEF</div><p class="feat-body">Every Monday, Aurion tells you why your performance went up or down — connecting sleep, diet, steps, and volume. Your coach.</p><span class="feat-tag">✦ The Differentiator</span></div>
+  </div>
+</section>
+
+<!-- BOTTOM CTA -->
+<section class="bottom-cta">
+  <div class="cta-title">AURION</div>
+  <p class="cta-sub">your body. your data. your <em>edge.</em></p>
+  <div class="bottom-form" id="btmWrap">
+    <div class="form-inner" id="btmForm">
+      <input type="email" id="btmEmail" placeholder="your email" autocomplete="email"/>
+      <button class="form-btn" onclick="go('btmEmail','btmForm','btmWrap','btmOk')">I'M IN →</button>
+    </div>
+  </div>
+  <div class="success-box" id="btmOk" style="margin:0 auto">
+    <div class="icon">⚡</div><p>Locked in.</p><span>See you at launch.</span>
+  </div>
+</section>
+
+<footer>
+  <div style="font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;letter-spacing:.2em;background:linear-gradient(135deg,#7B6EFF,#00E5FF);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">AURION</div>
+  <div>© 2026 · Know Your Body · Building in public</div>
+  <div>Brand Identity v1.0</div>
+</footer>
+
+<script>
+  // Particles
+  const pc=document.getElementById('particles');
+  for(let i=0;i<25;i++){
+    const p=document.createElement('div');p.className='particle';
+    const sz=Math.random()*3+1;
+    const cols=['rgba(123,110,255,','rgba(0,229,255,','rgba(255,107,107,'];
+    const c=cols[Math.floor(Math.random()*cols.length)];
+    p.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;background:${c}0.6);animation-duration:${Math.random()*15+10}s;animation-delay:${Math.random()*10}s;box-shadow:0 0 ${sz*3}px ${c}0.4)`;
+    pc.appendChild(p);
+  }
+
+  // Cursor
+  const cur=document.getElementById('cur'),ring=document.getElementById('curRing');
+  let mx=0,my=0,tx=0,ty=0;
+  document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px';});
+  (function a(){tx+=(mx-tx)*.12;ty+=(my-ty)*.12;ring.style.left=tx+'px';ring.style.top=ty+'px';requestAnimationFrame(a);})();
+  document.querySelectorAll('button,.feat,.tg-card,.logo-card,.swatch,.app-icon').forEach(el=>{
+    el.addEventListener('mouseenter',()=>{cur.style.transform='translate(-50%,-50%) scale(2.5)';ring.style.transform='translate(-50%,-50%) scale(1.5)';});
+    el.addEventListener('mouseleave',()=>{cur.style.transform='translate(-50%,-50%) scale(1)';ring.style.transform='translate(-50%,-50%) scale(1)';});
+  });
+
+  // Form
+  function go(iId,fId,wId,sId){
+    const v=document.getElementById(iId).value.trim();
+    if(!v||!v.includes('@')||!v.includes('.')){
+      const el=document.getElementById(iId);el.style.color='#FF6B6B';el.value='';el.placeholder='enter a valid email';
+      setTimeout(()=>{el.style.color='';el.placeholder='your email address';},2000);return;
+    }
+    fetch('https://formspree.io/f/xqedygvl',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:v,time:new Date().toISOString()})}).catch(()=>{});
+    document.getElementById(wId).style.display='none';
+    document.getElementById(sId).style.display='block';
+    const c=document.getElementById('cnt');if(c)c.textContent=parseInt(c.textContent)+1;
+  }
+  ['heroEmail','btmEmail'].forEach((id,i)=>{
+    const pairs=[['heroEmail','heroForm','heroWrap','heroOk'],['btmEmail','btmForm','btmWrap','btmOk']];
+    document.getElementById(id)?.addEventListener('keydown',e=>{if(e.key==='Enter')go(...pairs[i]);});
+  });
+
+  // Counter
+  const cnt=document.getElementById('cnt');let c=0;const target=412;
+  const t=setInterval(()=>{c+=Math.ceil((target-c)/8);cnt.textContent=c;if(c>=target){cnt.textContent=target;clearInterval(t);}},28);
+
+  // Reveal
+  const obs=new IntersectionObserver(entries=>{
+    entries.forEach((e,i)=>{if(e.isIntersecting){setTimeout(()=>e.target.classList.add('on'),i*50);obs.unobserve(e.target);}});
+  },{threshold:.08});
+  document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+</script>
+</body>
+</html>
